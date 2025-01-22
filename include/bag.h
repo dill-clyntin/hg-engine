@@ -8,6 +8,8 @@
 //#include "bag_view.h"
 //#include "bag_cursor.h"
 
+extern u16 shinyCharmCheck;
+
 // file is largely just from pokeheartgold
 
 /*
