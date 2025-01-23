@@ -20,6 +20,8 @@
 
 #define NELEMS_POKEFORMDATATBL 287
 
+extern u16 shinyCharmCheck;
+
 extern u32 word_to_store_form_at;
 // [preevo] = {species, form}, [postevo] = {species, form},
 u16 ALIGN4 gEvolutionSceneOverride[2][2];
@@ -2103,7 +2105,10 @@ BOOL SetFixedWildEncounter(const WildEncounterWork *inData, const u8 inListNum, 
  */
 BOOL LONG_CALL CalcShininessByOtIdAndPersonality(u32 otid, u32 pid)
 {
-    return SHINY_CHECK(otid, pid);
+    if (shinyCharmCheck == 1){
+    return SHINY_CHECK_CHARM(otid, pid);
+    } else{return SHINY_CHECK(otid, pid);
+    }
 }
 
 /**

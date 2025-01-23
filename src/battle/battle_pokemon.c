@@ -12,6 +12,27 @@
 #include "../../include/constants/moves.h"
 #include "../../include/constants/species.h"
 
+int partySize; // Definition of the global variable for party size
+int enemyPartySize; // Definition of the global variable for enemy party size
+static int functionUsedFlag = 0;
+
+u16 pokemon1HeldItem = 0;
+u16 pokemon2HeldItem = 0;
+u16 pokemon3HeldItem = 0;
+u16 pokemon4HeldItem = 0;
+u16 pokemon5HeldItem = 0;
+u16 pokemon6HeldItem = 0;
+u16 pokemon1HeldItemExpHandler = 0;
+u16 pokemon2HeldItemExpHandler = 0;
+u16 pokemon3HeldItemExpHandler = 0;
+u16 pokemon4HeldItemExpHandler = 0;
+u16 pokemon5HeldItemExpHandler = 0;
+u16 pokemon6HeldItemExpHandler = 0;
+
+//Declaration of global variables for exp share toggle to use here
+extern u16 expReg1;
+extern u16 expReg2;
+
 // function declarations
 //BOOL BattleFormChangeCheck(void *bw, struct BattleStruct *sp, int *seq_no);
 void ClientPokemonEncount(void *bw, struct CLIENT_PARAM *cp);
@@ -198,6 +219,99 @@ u8 TypeEffectivenessTable[][3] =
     { 0xFF, 0xFF, 0xFF },
 };
 
+// Function to update the party size
+void UpdatePartySize(struct Party *party) {
+    partySize = 0;
+    for (int i = 0; i < 6; ++i) {
+        struct PartyPokemon *pokemon = Party_GetMonByIndex(party, i);
+        if (GetMonData(pokemon, MON_DATA_SPECIES, NULL) != SPECIES_NONE) {
+            partySize++;
+        }
+    }
+}
+void UpdateEnemyPartySize(void *bw) {
+    enemyPartySize = 0;
+    struct Party *enemyParty = BattleWorkPokePartyGet(bw, 1); // Assuming 1 represents the enemy party
+    for (int i = 0; i < 6; ++i) {
+        struct PartyPokemon *pokemon = Party_GetMonByIndex(enemyParty, i);
+        if (GetMonData(pokemon, MON_DATA_SPECIES, NULL) != SPECIES_NONE) {
+            enemyPartySize++;
+        }
+    }
+}
+// Function to store the held items of each PokÈmon in the party
+void StorePartyPokemonHeldItems(struct Party *party) {
+    for (int i = 0; i < partySize; ++i) {
+        struct PartyPokemon *pokemon = Party_GetMonByIndex(party, i);
+        switch (i) {
+            case 0: pokemon1HeldItem = GetMonData(pokemon, MON_DATA_HELD_ITEM, NULL); break;
+            case 1: pokemon2HeldItem = GetMonData(pokemon, MON_DATA_HELD_ITEM, NULL); break;
+            case 2: pokemon3HeldItem = GetMonData(pokemon, MON_DATA_HELD_ITEM, NULL); break;
+            case 3: pokemon4HeldItem = GetMonData(pokemon, MON_DATA_HELD_ITEM, NULL); break;
+            case 4: pokemon5HeldItem = GetMonData(pokemon, MON_DATA_HELD_ITEM, NULL); break;
+            case 5: pokemon6HeldItem = GetMonData(pokemon, MON_DATA_HELD_ITEM, NULL); break;
+        }
+    }
+}
+
+// Function to give back the held items to each PokÈmon in the party
+void GiveBackHeldItemsToPartyPokemon(struct Party *party) {
+    for (int i = 0; i < partySize; ++i) {
+        struct PartyPokemon *pokemon = Party_GetMonByIndex(party, i);
+        switch (i) {
+            case 0: SetMonData(pokemon, MON_DATA_HELD_ITEM, &pokemon1HeldItem); break;
+            case 1: SetMonData(pokemon, MON_DATA_HELD_ITEM, &pokemon2HeldItem); break;
+            case 2: SetMonData(pokemon, MON_DATA_HELD_ITEM, &pokemon3HeldItem); break;
+            case 3: SetMonData(pokemon, MON_DATA_HELD_ITEM, &pokemon4HeldItem); break;
+            case 4: SetMonData(pokemon, MON_DATA_HELD_ITEM, &pokemon5HeldItem); break;
+            case 5: SetMonData(pokemon, MON_DATA_HELD_ITEM, &pokemon6HeldItem); break;
+        }
+    }
+}
+
+
+// Function to give all PokÈmon in the party the EXP Share item
+void GiveExpShareToAllPartyPokemon(struct Party *party) {
+    int expShareItemId = ITEM_EXP_SHARE; // Use the defined constant for EXP Share
+
+    for (int i = 0; i < 6; ++i) { // Loop through all 6 party slots
+        struct PartyPokemon *pokemon = Party_GetMonByIndex(party, i);
+        if (pokemon != NULL && GetMonData(pokemon, MON_DATA_SPECIES, NULL) != SPECIES_NONE) {
+            // Only give EXP Share to non-empty slots with valid PokÈmon
+            SetMonData(pokemon, MON_DATA_HELD_ITEM, &expShareItemId);
+        }
+    }
+}
+// Function to store the held items of each PokÈmon in the party EXPhandler
+void StorePartyPokemonHeldItemsExpHandler(struct Party *party) {
+    for (int i = 0; i < partySize; ++i) {
+        struct PartyPokemon *pokemon = Party_GetMonByIndex(party, i);
+        switch (i) {
+            case 0: pokemon1HeldItemExpHandler = GetMonData(pokemon, MON_DATA_HELD_ITEM, NULL); break;
+            case 1: pokemon2HeldItemExpHandler = GetMonData(pokemon, MON_DATA_HELD_ITEM, NULL); break;
+            case 2: pokemon3HeldItemExpHandler = GetMonData(pokemon, MON_DATA_HELD_ITEM, NULL); break;
+            case 3: pokemon4HeldItemExpHandler = GetMonData(pokemon, MON_DATA_HELD_ITEM, NULL); break;
+            case 4: pokemon5HeldItemExpHandler = GetMonData(pokemon, MON_DATA_HELD_ITEM, NULL); break;
+            case 5: pokemon6HeldItemExpHandler = GetMonData(pokemon, MON_DATA_HELD_ITEM, NULL); break;
+        }
+    }
+}
+// Function to give back the held items to each PokÈmon in the party Exphandler
+void GiveBackHeldItemsToPartyPokemonExpHandler(struct Party *party) {
+    for (int i = 0; i < partySize; ++i) {
+        struct PartyPokemon *pokemon = Party_GetMonByIndex(party, i);
+        switch (i) {
+            case 0: SetMonData(pokemon, MON_DATA_HELD_ITEM, &pokemon1HeldItemExpHandler); break;
+            case 1: SetMonData(pokemon, MON_DATA_HELD_ITEM, &pokemon2HeldItemExpHandler); break;
+            case 2: SetMonData(pokemon, MON_DATA_HELD_ITEM, &pokemon3HeldItemExpHandler); break;
+            case 3: SetMonData(pokemon, MON_DATA_HELD_ITEM, &pokemon4HeldItemExpHandler); break;
+            case 4: SetMonData(pokemon, MON_DATA_HELD_ITEM, &pokemon5HeldItemExpHandler); break;
+            case 5: SetMonData(pokemon, MON_DATA_HELD_ITEM, &pokemon6HeldItemExpHandler); break;
+        }
+    }
+}
+
+
 /**
  *  @brief check if a form change needs to happen.  if so, return TRUE and populate *seq_no with the subscript to run
  *
@@ -223,6 +337,27 @@ BOOL LONG_CALL BattleFormChangeCheck(void *bw, struct BattleStruct *sp, int *seq
     UnloadOverlayByID(ovyId);
 
     HandleLoadOverlay(6, 2); // reload 6 so things are okay
+    
+    if (sp->fainting_client >= 1 && sp->battlemon[sp->fainting_client].hp == 0)
+    {
+        struct Party *party = BattleWorkPokePartyGet(bw, 0); // Replace 'bw' with your battle work pointer
+        
+        // Update the party size
+        UpdatePartySize(party);
+        
+        // Now partySize contains the number of PokÈmon in the party
+        
+        
+        // Store the held items of all PokÈmon
+        StorePartyPokemonHeldItemsExpHandler(party);
+        
+        
+        if ((expReg1 == 1) ||
+            (expReg2 == 1)){
+            
+            GiveExpShareToAllPartyPokemon(party);
+        }
+    }
 
     return ret;
 }
@@ -295,6 +430,29 @@ void ClientPokemonEncountAppear(void *bw, struct CLIENT_PARAM *cp)
     u32 side = cp->client_no, newform, newmon, newshiny;
     struct Party *party = BattleWorkPokePartyGet(bw, side);
     u32 count = party->count;
+    
+    if (functionUsedFlag == 0){
+
+    {
+        struct Party *party = BattleWorkPokePartyGet(bw, 0); // Replace 'bw' with your battle work pointer
+
+        // Update the party size
+        UpdatePartySize(party);
+
+        // Now partySize contains the number of PokÈmon in the party
+    }
+    {
+       struct Party *party = BattleWorkPokePartyGet(bw, 0); // Replace 'bw' with your battle work pointer
+
+        // Store the held items of all PokÈmon
+        StorePartyPokemonHeldItems(party);
+
+    }
+    functionUsedFlag = 1;
+    }
+
+    side = ((cp->client_type & 1) != 0);
+
 
     if (
     // mon's ability is illusion
@@ -350,6 +508,24 @@ void ClientPokemonAppear(void *bw, struct CLIENT_PARAM *cp)
     u32 side = cp->client_no, newform, newmon, newshiny;
     struct Party *party = BattleWorkPokePartyGet(bw, side);
     u32 count = party->count;
+    
+    {
+        struct Party *party = BattleWorkPokePartyGet(bw, 0); // Replace 'bw' with your battle work pointer
+
+        // Update the party size
+        UpdatePartySize(party);
+
+        // Now partySize contains the number of PokÈmon in the party
+    }
+    {
+       struct Party *party = BattleWorkPokePartyGet(bw, 0); // Replace 'bw' with your battle work pointer
+
+        // Store the held items of all PokÈmon
+        StorePartyPokemonHeldItemsExpHandler(party);
+
+    }
+
+    side = ((cp->client_type & 1) != 0);
 
     if (
     // mon's ability is illusion
@@ -483,6 +659,12 @@ void CT_SwitchInMessageParamMake(void *bw, struct CLIENT_PARAM *cp, struct SWITC
     {
         struct Party *party;
         u32 ability = 0;
+        
+        {
+        struct Party *party = BattleWorkPokePartyGet(bw, 0); // Replace 'bw' with your battle work pointer
+        // Call function to give back held items
+        GiveBackHeldItemsToPartyPokemon(party);
+        }
 
         party = BattleWorkPokePartyGet(bw, cp->client_no);
 
@@ -980,6 +1162,12 @@ void BattleEndRevertFormChange(struct BattleSystem *bw)
         newBS.itemsToRestore[i] = 0;
     }
 #endif // RESTORE_ITEMS_AT_BATTLE_END
+    {
+       struct Party *party = BattleWorkPokePartyGet(bw, 0); // Replace 'bw' with your battle work pointer
+       // Call function to give back held items
+       GiveBackHeldItemsToPartyPokemon(party);
+       functionUsedFlag = 1;
+   }
 }
 
 /**

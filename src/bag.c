@@ -4,7 +4,7 @@
 #include "../include/item.h"
 #include "../include/save.h"
 #include "../include/script.h"
-
+#include "../include/battle.h"
 
 // file is directly from pokeheartgold but without the bag_cursor stuff + sPocketCounts right here
 
@@ -31,6 +31,11 @@ const u8 sPocketCountBytes[8] = {
     NUM_BAG_KEY_ITEMS,
 };
 
+u16 shinyCharmCheck = 0;
+
+//Definition of global variables for exp share toggle
+u16 expReg1 = 0;
+u16 expReg2 = 0;
 
 void SortPocket(ITEM_SLOT *slots, u32 count);
 void PocketCompaction(ITEM_SLOT *slots, u32 count);
@@ -56,10 +61,63 @@ void Sav2_Bag_copy(BAG_DATA *src, BAG_DATA *dst) {
 }
 
 u16 Bag_GetRegisteredItemSlot1(BAG_DATA *bag) {
+    if (bag->registeredItems[0] == ITEM_EXP_SHARE){
+       expReg1 = 1;
+   }
+   if ((bag->keyItems[0].id == ITEM_SHINY_CHARM)
+       ||(bag->keyItems[1].id == ITEM_SHINY_CHARM)
+       || (bag->keyItems[2].id == ITEM_SHINY_CHARM)
+       || (bag->keyItems[3].id == ITEM_SHINY_CHARM)
+       || (bag->keyItems[4].id == ITEM_SHINY_CHARM)
+       || (bag->keyItems[5].id == ITEM_SHINY_CHARM)
+       || (bag->keyItems[6].id == ITEM_SHINY_CHARM)
+       || (bag->keyItems[7].id == ITEM_SHINY_CHARM)
+       || (bag->keyItems[8].id == ITEM_SHINY_CHARM)
+       || (bag->keyItems[9].id == ITEM_SHINY_CHARM)
+       || (bag->keyItems[10].id == ITEM_SHINY_CHARM)
+       || (bag->keyItems[11].id == ITEM_SHINY_CHARM)
+       || (bag->keyItems[12].id == ITEM_SHINY_CHARM)
+       || (bag->keyItems[13].id == ITEM_SHINY_CHARM)
+       || (bag->keyItems[14].id == ITEM_SHINY_CHARM)
+       || (bag->keyItems[15].id == ITEM_SHINY_CHARM)
+       || (bag->keyItems[16].id == ITEM_SHINY_CHARM)
+       || (bag->keyItems[17].id == ITEM_SHINY_CHARM)
+       || (bag->keyItems[18].id == ITEM_SHINY_CHARM)
+       || (bag->keyItems[19].id == ITEM_SHINY_CHARM)
+       || (bag->keyItems[20].id == ITEM_SHINY_CHARM)
+       || (bag->keyItems[21].id == ITEM_SHINY_CHARM)
+       || (bag->keyItems[22].id == ITEM_SHINY_CHARM)
+       || (bag->keyItems[23].id == ITEM_SHINY_CHARM)
+       || (bag->keyItems[24].id == ITEM_SHINY_CHARM)
+       || (bag->keyItems[25].id == ITEM_SHINY_CHARM)
+       || (bag->keyItems[26].id == ITEM_SHINY_CHARM)
+       || (bag->keyItems[27].id == ITEM_SHINY_CHARM)
+       || (bag->keyItems[28].id == ITEM_SHINY_CHARM)
+       || (bag->keyItems[29].id == ITEM_SHINY_CHARM)
+       || (bag->keyItems[30].id == ITEM_SHINY_CHARM)
+       || (bag->keyItems[31].id == ITEM_SHINY_CHARM)
+       || (bag->keyItems[32].id == ITEM_SHINY_CHARM)
+       || (bag->keyItems[33].id == ITEM_SHINY_CHARM)
+       || (bag->keyItems[34].id == ITEM_SHINY_CHARM)
+       || (bag->keyItems[35].id == ITEM_SHINY_CHARM)
+       || (bag->keyItems[36].id == ITEM_SHINY_CHARM)
+       || (bag->keyItems[37].id == ITEM_SHINY_CHARM)
+       || (bag->keyItems[38].id == ITEM_SHINY_CHARM)
+       || (bag->keyItems[39].id == ITEM_SHINY_CHARM)
+       || (bag->keyItems[40].id == ITEM_SHINY_CHARM)
+       || (bag->keyItems[41].id == ITEM_SHINY_CHARM)
+       || (bag->keyItems[42].id == ITEM_SHINY_CHARM)
+       || (bag->keyItems[43].id == ITEM_SHINY_CHARM)) {
+       shinyCharmCheck = 1;
+   }
+    
     return bag->registeredItems[0];
 }
 
 u16 Bag_GetRegisteredItemSlot2(BAG_DATA *bag) {
+    if (bag->registeredItems[1] == ITEM_EXP_SHARE){
+        expReg2 = 1;
+    }
     return bag->registeredItems[1];
 }
 
@@ -69,9 +127,13 @@ RegisterItemResult Bag_TryRegisterItem(BAG_DATA *bag, u16 itemId) {
     if (bag->registeredItems[0] == ITEM_NONE) {
         bag->registeredItems[0] = itemId;
         result = REG_ITEM_SLOT1;
+        if (itemId == ITEM_EXP_SHARE) {
+        expReg1 = 1; }
     } else if (bag->registeredItems[1] == ITEM_NONE) {
         bag->registeredItems[1] = itemId;
         result = REG_ITEM_SLOT2;
+        if (itemId == ITEM_EXP_SHARE) {
+        expReg2 = 1; }
     }
     return result;
 }
@@ -79,12 +141,15 @@ RegisterItemResult Bag_TryRegisterItem(BAG_DATA *bag, u16 itemId) {
 void Bag_UnregisterItem(BAG_DATA *bag, u16 itemId) {
     if (bag->registeredItems[1] == itemId) {
         bag->registeredItems[1] = ITEM_NONE;
+        expReg2 = 0;
     } else if (bag->registeredItems[0] == itemId) {
         if (bag->registeredItems[1] != ITEM_NONE) {
             bag->registeredItems[0] = bag->registeredItems[1];
             bag->registeredItems[1] = ITEM_NONE;
+            expReg1 = 0;
         } else {
             bag->registeredItems[0] = ITEM_NONE;
+            expReg1 = 0;
         }
     }
 }
@@ -176,6 +241,11 @@ BOOL Bag_AddItem(BAG_DATA *bag, u16 itemId, u16 quantity, int heap_id) {
     }
     slot->id = itemId;
     slot->quantity += quantity;
+    
+    if (itemId == ITEM_SHINY_CHARM) {
+          shinyCharmCheck = 1;
+      }
+
     {
         u32 count;
         u32 pocket_id;

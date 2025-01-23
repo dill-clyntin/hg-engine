@@ -1149,6 +1149,7 @@ BOOL LONG_CALL GrabAndRegisterUnownForm(EncounterInfo *encounterInfo);
 // shiny convenience macro
 #define SHINY_VALUE(otid, pid) (((otid & 0xffff0000) >> 16) ^ (otid & 0xffff) ^ ((pid & 0xffff0000) >> 16) ^ (pid & 0xffff))
 #define SHINY_CHECK(otid, pid) (SHINY_VALUE(otid, pid) <= SHINY_ODDS)
+#define SHINY_CHECK_CHARM(otid, pid) (SHINY_VALUE(otid, pid) <= (SHINY_ODDS + 24))
 
 /**
  *  @brief check if PartyPokemon is shiny

@@ -9,6 +9,29 @@
 #include "save.h"
 #include "constants/moves.h"
 
+#include <stdint.h> // For using standard integer types like uint16_t
+
+extern int partySize; // Declaration of the global variable for party size
+
+extern u16 pokemon1HeldItem;
+extern u16 pokemon2HeldItem;
+extern u16 pokemon3HeldItem;
+extern u16 pokemon4HeldItem;
+extern u16 pokemon5HeldItem;
+extern u16 pokemon6HeldItem;
+
+extern u16 pokemon1HeldItemExpHandler;
+extern u16 pokemon2HeldItemExpHandler;
+extern u16 pokemon3HeldItemExpHandler;
+extern u16 pokemon4HeldItemExpHandler;
+extern u16 pokemon5HeldItemExpHandler;
+extern u16 pokemon6HeldItemExpHandler;
+
+
+//Declaration of global variables for exp share toggle
+extern u16 expReg1;
+extern u16 expReg2;
+
 #define CLIENT_MAX 4
 
 #define TYPE_NORMAL   0x00
