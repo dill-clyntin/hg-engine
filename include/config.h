@@ -110,4 +110,7 @@
 // UPDATE_VITAMIN_EV_CAPS changes the cap on the vitamins from 100 to 252 per recent generations
 #define UPDATE_VITAMIN_EV_CAPS
 
+// Implement custom script for IV raising 
+#define BOTTLE_CAP_MAX_IVS
+
 #endif
