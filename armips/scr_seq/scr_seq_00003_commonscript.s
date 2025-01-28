@@ -87,6 +87,7 @@ scrdef scr_seq_0003_069
 scrdef scr_seq_0003_070
 scrdef scr_seq_0003_071
 scrdef scr_seq_0003_072_repels
+scrdef scr_seq_0003_073_warp
 scrdef_end
 
 scr_seq_0003_002:
@@ -1315,6 +1316,23 @@ scr_seq_0003_072_repels:
     npc_msg 119
     wait_button_or_walk_away
 scr_seq_0003_072_end:
+    closemsg
+    releaseall
+    end
+
+scr_seq_0003_073_warp:
+    lockall
+    npc_msg 120
+    yesno VAR_SPECIAL_RESULT
+    compare VAR_SPECIAL_RESULT, 1
+    goto_if_eq scr_seq_0003_072_end
+    fade_screen 6, 1, 0, RGB_BLACK
+    wait_fade
+    warp 60, 0, 695, 397, 1
+    fade_screen 6, 1, 1, RGB_BLACK
+    wait_fade
+    releaseall
+scr_seq_0003_73_end:
     closemsg
     releaseall
     end
