@@ -1322,18 +1322,23 @@ scr_seq_0003_072_end:
 
 scr_seq_0003_073_warp:
     lockall
+    goto_if_unset FLAG_TALKED_TO_MOM_AFTER_NAMING_RIVAL, scr_seq_0003_73_end2
     npc_msg 120
     yesno VAR_SPECIAL_RESULT
     compare VAR_SPECIAL_RESULT, 1
     goto_if_eq scr_seq_0003_072_end
     fade_screen 6, 1, 0, RGB_BLACK
     wait_fade
-    warp 60, 0, 695, 397, 1
+    warp 31, 0, 715, 368, 3
     fade_screen 6, 1, 1, RGB_BLACK
     wait_fade
     releaseall
+    end
 scr_seq_0003_73_end:
     closemsg
+    releaseall
+    end
+scr_seq_0003_73_end2:
     releaseall
     end
 
