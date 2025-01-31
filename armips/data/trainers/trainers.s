@@ -16705,7 +16705,7 @@ trainerdata 495, "Boy"
         ivs 0
         abilityslot 0
         level 5
-        pokemon SPECIES_CHIKORITA
+        pokemon SPECIES_LITTEN
         ballseal 0
     endparty
 
@@ -16726,7 +16726,7 @@ trainerdata 496, "Boy"
         ivs 0
         abilityslot 0
         level 5
-        pokemon SPECIES_CYNDAQUIL
+        pokemon SPECIES_LITTEN
         ballseal 0
     endparty
 
@@ -16747,7 +16747,7 @@ trainerdata 497, "Boy"
         ivs 0
         abilityslot 0
         level 5
-        pokemon SPECIES_TOTODILE
+        pokemon SPECIES_LITTEN
         ballseal 0
     endparty
 
