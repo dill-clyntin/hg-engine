@@ -301,7 +301,7 @@ void GiveExpShareToAllPartyPokemon(struct Party *party) {
 
     for (int i = 0; i < 6; ++i) { // Loop through all 6 party slots
         struct PartyPokemon *pokemon = Party_GetMonByIndex(party, i);
-        if (pokemon != NULL && GetMonData(pokemon, MON_DATA_SPECIES, NULL) != SPECIES_NONE) {
+        if ((pokemon != NULL && GetMonData(pokemon, MON_DATA_SPECIES, NULL) != SPECIES_NONE) && GetMonData(pokemon, MON_DATA_IS_EGG, NULL) != 1) {
             // Only give EXP Share to non-empty slots with valid PokÈmon
             SetMonData(pokemon, MON_DATA_HELD_ITEM, &expShareItemId);
         }
