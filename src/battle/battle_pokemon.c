@@ -15,6 +15,7 @@
 int partySize; // Definition of the global variable for party size
 int enemyPartySize; // Definition of the global variable for enemy party size
 static int functionUsedFlag = 0;
+static int expFlag = 0;
 
 u16 pokemon1HeldItem = 0;
 u16 pokemon2HeldItem = 0;
@@ -372,15 +373,18 @@ BOOL LONG_CALL BattleFormChangeCheck(void *bw, struct BattleStruct *sp, int *seq
         
         // Now partySize contains the number of PokÈmon in the party
         
-        
-        // Store the held items of all PokÈmon
-        StorePartyPokemonHeldItemsExpHandler(party);
-        
-        
-        if ((expReg1 == 1) ||
-            (expReg2 == 1)){
+        if (expFlag == 0) {
             
-            GiveExpShareToAllPartyPokemon(party);
+            // Store the held items of all PokÈmon
+            StorePartyPokemonHeldItemsExpHandler(party);
+            
+            
+            if ((expReg1 == 1) ||
+                (expReg2 == 1)){
+                
+                GiveExpShareToAllPartyPokemon(party);
+            }
+            expFlag = 1;
         }
     }
 
@@ -476,6 +480,18 @@ void ClientPokemonEncountAppear(void *bw, struct CLIENT_PARAM *cp)
     functionUsedFlag = 1;
     }
 
+    if (expFlag == 1){
+
+    {
+       struct Party *party = BattleWorkPokePartyGet(bw, 0); // Replace 'bw' with your battle work pointer
+
+        // change items from exp back to original
+        GiveBackHeldItemsToPartyPokemonExpHandler(party);
+
+    }
+    expFlag = 0;
+    }
+    
     side = ((cp->client_type & 1) != 0);
 
 
@@ -542,12 +558,17 @@ void ClientPokemonAppear(void *bw, struct CLIENT_PARAM *cp)
 
         // Now partySize contains the number of PokÈmon in the party
     }
+    
+    if (expFlag == 1){
+
     {
        struct Party *party = BattleWorkPokePartyGet(bw, 0); // Replace 'bw' with your battle work pointer
 
-        // Store the held items of all PokÈmon
-        StorePartyPokemonHeldItemsExpHandler(party);
+        // change items from exp back to original
+        GiveBackHeldItemsToPartyPokemonExpHandler(party);
 
+    }
+    expFlag = 0;
     }
 
     side = ((cp->client_type & 1) != 0);
@@ -684,13 +705,7 @@ void CT_SwitchInMessageParamMake(void *bw, struct CLIENT_PARAM *cp, struct SWITC
     {
         struct Party *party;
         u32 ability = 0;
-        
-        {
-        struct Party *party = BattleWorkPokePartyGet(bw, 0); // Replace 'bw' with your battle work pointer
-        // Call function to give back held items
-        GiveBackHeldItemsToPartyPokemon(party);
-        }
-
+    
         party = BattleWorkPokePartyGet(bw, cp->client_no);
 
         ability = GetMonData(Party_GetMonByIndex(party, smp->sel_mons_no), MON_DATA_ABILITY, NULL);
